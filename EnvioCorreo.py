@@ -1,6 +1,9 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #otros import
 import RPi.GPIO as GPIO
 import time
+import sys
 #importamos la opcion de lanzar otros programas para realizar las capturas
 import commands
 # importamos la libreria smtplib (no es necesario instalarlo)
@@ -12,32 +15,15 @@ from email.mime.text import MIMEText
 from email.MIMEImage import MIMEImage 
 from email import encoders 
 
-GPIO.setmode(GPIO.BCM)
-boton = 21
-pulsado=False
-iteraciones=0
-GPIO.setwarnings(False)
-GPIO.setup(boton, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-
-def pulso(boton):
-	global pulsado
-	pulsado=True
-
-def estaPulsado():
-	global iteraciones
-	iteraciones=0
-	while GPIO.input(boton):
-		iteraciones=iteraciones+1
-		time.sleep(0.5)
-	return iteraciones
-
-GPIO.add_event_detect(boton, GPIO.RISING, callback=pulso, bouncetime=400)
+addr_to='pedro.barquin@gmail.com'
+mensaje="Cuerpo del mensaje de pruebas de raspberry, para el envio de correos"
 
 #funciones envio de mensajes
 def mensajeConImagen():
 	# definimos los correo de remitente y receptor
 	##se envia un mail a
-	addr_to   = 'pedro.barquin@gmail.com'
+	global addr_to
+        global mensaje
 	##el mail sale desde el correo
 	addr_from = 'pruebasraspberry@gmail.com'
 
@@ -47,10 +33,10 @@ def mensajeConImagen():
 	smtp_pass   = 'Pruebas16'
 	 
 	# Construimos el mail
-	msg = MIMEMultipart() 
+	msg = MIMEMultipart()
 	msg['To'] = addr_to
 	msg['From'] = addr_from
-	msg['Subject'] = 'Prueba Cabecera'
+	msg['Subject'] = 'Correo notificacion Pruebas Raspberry'
 	#cuerpo del mensaje en HTML y si fuera solo text puede colocar en el 2da parametro 'plain'
 	msg.attach(MIMEText('Cuerpo del mensaje'))
 
@@ -85,7 +71,8 @@ def mensajeConImagen():
 def mensajeSimple():
 	# definimos los correo de remitente y receptor
 	##se envia un mail a
-	addr_to   = 'pedro.barquin@gmail.com'
+	global addr_to
+	global mensaje
 	##el mail sale desde el correo
 	addr_from = 'pruebasraspberry@gmail.com'
 
@@ -98,9 +85,9 @@ def mensajeSimple():
 	msg = MIMEMultipart() 
 	msg['To'] = addr_to
 	msg['From'] = addr_from
-	msg['Subject'] = 'Prueba Titulo'
+	msg['Subject'] = 'Correo notificacion Pruebas Raspberry'
 	#cuerpo del mensaje en HTML y si fuera solo text puede colocar en el 2da parametro 'plain'
-	msg.attach(MIMEText('Mensaje principal'))
+	msg.attach(MIMEText(mensaje))
 
 	# inicializamos el stmp para hacer el envio
 	server = smtplib.SMTP(smtp_server)
@@ -112,19 +99,27 @@ def mensajeSimple():
 	#apagamos conexion stmp
 	server.quit()
 
-try:
-	while True:
-		time.sleep(0.5)
-		if (pulsado):
-			veces=estaPulsado()
-			if(veces>4):
-				mensajeConImagen()
-				pulsado=False
-				iteraciones=0
-			else:
-				mensajeSimple()
-				pulsado=False
-				iteraciones=0
-except KeyboardInterrupt:  
-	GPIO.cleanup()     
-GPIO.cleanup()
+if len(sys.argv)==1:
+	mensajeSimple()
+elif len(sys.argv)>1 and len(sys.argv)<4:
+	print "Se ha olvidado añadir algun elemento o poner Default"
+	print "El orden es:"
+	print "Mensaje con imagen: Imagen o Default"
+	print "Cuerpo del mensaje: xxx o Default"
+	print "Correo: xxx@gmail.com o Default"
+else:
+	if sys.argv[2]!="Default":
+		mensaje=sys.argv[2]
+	if sys.argv[3]!="Default":
+		addr_to= sys.argv[3]
+		if addr_to.endswith(('@gmail.com','@hotmail.com')):
+			pass
+		else:
+			print "el correo (tercer parametro) no es valido"
+			sys.exit()
+	if sys.argv[1]=="Imagen":
+		mensajeConImagen()
+	elif sys.argv[1]=="Default":
+		mensajeSimple()
+	else:
+		print "El primer parametro no es valido"
