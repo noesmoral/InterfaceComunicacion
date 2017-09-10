@@ -10,7 +10,7 @@ import os
 import csv
 import pygame.mixer
 from pygame.locals import *
-import moduloVoz
+import moduloConversorTexto
 
 GPIO.setmode(GPIO.BCM)  #configuramos el formato en este caso segun la posicion en la placa
 
@@ -32,7 +32,7 @@ listaPreguntasImagenes=[]
 tamanio=0
 
 #objeto conversor texto vox
-CONV=moduloVoz.VOZ()
+CONV=moduloConversorTexto.CONVERSOR()
 
 #graficos
 pygame.init()
@@ -88,7 +88,7 @@ def respuestaSiMensaje(mensaje):
 	separarImagenesPreguntas(listaRespuestasImagenes[mensaje])
 	mostrarTexto(listaRespuestas[mensaje])
 	GPIO.output(ledV, True)
-	CONV.convertir(fichero="/home/pi/Desktop/RespuestasMP3/"+str(cont)+".mp3", repoducir=True)
+	CONV.convertir(ruta="/home/pi/Desktop/RespuestasMP3/",nombre=str(cont), reproducir=True)
 	GPIO.output(ledV, False)
 	time.sleep(2)
 	screen.fill(WHITE)
@@ -98,13 +98,13 @@ def respuestaSiMensaje(mensaje):
 def respuestaSi():
 	print("Respuesta: SI")
 	GPIO.output(ledV, True) ## Enciendo el 27
-	CONV.convertir(fichero="/home/pi/Desktop/Si.mp3", repoducir=True)
+	CONV.convertir(ruta="/home/pi/Desktop/", nombre="Si", reproducir=True)
 	GPIO.output(ledV, False)
 
 def respuestaNo():
 	print("Respuesta: NO")
 	GPIO.output(ledR, True) ## Enciendo el 27
-	CONV.convertir(fichero="/home/pi/Desktop/No.mp3", repoducir=True)
+	CONV.convertir(ruta="/home/pi/Desktop/", nombre="No", reproducir=True)
 	GPIO.output(ledR, False)
 
 def estaPulsadoNo():
@@ -170,7 +170,7 @@ def preguntas():
 	print(listaPreguntas[cont]+"?")
 	separarImagenesPreguntas(listaPreguntasImagenes[cont])
 	mostrarTexto(listaPreguntas[cont]+"?")
-	CONV.convertir(fichero="/home/pi/Desktop/PreguntasMP3/"+str(cont)+".mp3", repoducir=True)
+	CONV.convertir(ruta="/home/pi/Desktop/PreguntasMP3/", nombre=str(cont), reproducir=True)
 	while cont<tamanio:
 		time.sleep(0.3)
 		if (pulsadoSi):
@@ -190,7 +190,7 @@ def preguntas():
 			pulsadoSi=False
 			separarImagenesPreguntas(listaPreguntasImagenes[cont])
 			mostrarTexto(listaPreguntas[cont]+"?")		
-			CONV.convertir(fichero="/home/pi/Desktop/PreguntasMP3/"+str(cont)+".mp3", repoducir=True)
+			CONV.convertir(ruta="/home/pi/Desktop/PreguntasMP3/", nombre=str(cont), repoducir=True)
 
 def convertirRespuestas():
 	global tamanio
