@@ -10,6 +10,7 @@ import os
 import csv
 import pygame.mixer
 from pygame.locals import *
+import moduloVoz
 
 GPIO.setmode(GPIO.BCM)  #configuramos el formato en este caso segun la posicion en la placa
 
@@ -29,6 +30,9 @@ listaPreguntas=[]
 listaPreguntasImagenes=[]
 
 tamanio=0
+
+#objeto conversor texto vox
+CONV=moduloVoz.VOZ()
 
 #graficos
 pygame.init()
@@ -84,7 +88,7 @@ def respuestaSiMensaje(mensaje):
 	separarImagenesPreguntas(listaRespuestasImagenes[mensaje])
 	mostrarTexto(listaRespuestas[mensaje])
 	GPIO.output(ledV, True)
-	os.system('aplay 2>/dev/null /home/pi/Desktop/RespuestasMP3/'+str(mensaje)+'.mp3')
+	CONV.convertir(fichero="/home/pi/Desktop/RespuestasMP3/"+str(cont)+".mp3", repoducir=True)
 	GPIO.output(ledV, False)
 	time.sleep(2)
 	screen.fill(WHITE)
@@ -94,13 +98,13 @@ def respuestaSiMensaje(mensaje):
 def respuestaSi():
 	print("Respuesta: SI")
 	GPIO.output(ledV, True) ## Enciendo el 27
-	os.system('aplay 2>/dev/null /home/pi/Desktop/Si.mp3')
+	CONV.convertir(fichero="/home/pi/Desktop/Si.mp3", repoducir=True)
 	GPIO.output(ledV, False)
 
 def respuestaNo():
 	print("Respuesta: NO")
 	GPIO.output(ledR, True) ## Enciendo el 27
-	os.system('aplay 2>/dev/null /home/pi/Desktop/No.mp3')
+	CONV.convertir(fichero="/home/pi/Desktop/No.mp3", repoducir=True)
 	GPIO.output(ledR, False)
 
 def estaPulsadoNo():
@@ -166,7 +170,7 @@ def preguntas():
 	print(listaPreguntas[cont]+"?")
 	separarImagenesPreguntas(listaPreguntasImagenes[cont])
 	mostrarTexto(listaPreguntas[cont]+"?")
-	os.system('aplay 2>/dev/null /home/pi/Desktop/PreguntasMP3/'+str(cont)+'.mp3')
+	CONV.convertir(fichero="/home/pi/Desktop/PreguntasMP3/"+str(cont)+".mp3", repoducir=True)
 	while cont<tamanio:
 		time.sleep(0.3)
 		if (pulsadoSi):
@@ -186,7 +190,7 @@ def preguntas():
 			pulsadoSi=False
 			separarImagenesPreguntas(listaPreguntasImagenes[cont])
 			mostrarTexto(listaPreguntas[cont]+"?")		
-			os.system('aplay 2>/dev/null /home/pi/Desktop/PreguntasMP3/'+str(cont)+'.mp3')
+			CONV.convertir(fichero="/home/pi/Desktop/PreguntasMP3/"+str(cont)+".mp3", repoducir=True)
 
 def convertirRespuestas():
 	global tamanio
@@ -196,7 +200,7 @@ def convertirRespuestas():
 		archi=open('/home/pi/Desktop/RespuestasMP3/datos.txt','w')
 		archi.write(listaRespuestas[cont])
 		archi.close()
-		os.system('espeak -v es -s 150 -f /home/pi/Desktop/RespuestasMP3/datos.txt -w /home/pi/Desktop/RespuestasMP3/'+str(cont)+'.mp3')
+                CONV.convertir(fichero="/home/pi/Desktop/RespuestasMP3/datos.txt", ruta="/home/pi/Desktop/RespuestasMP3/",nombre=str(cont),grabar=True)
 		cont=cont+1	
 
 def convertirPreguntas():
@@ -207,7 +211,7 @@ def convertirPreguntas():
 		archi=open('/home/pi/Desktop/PreguntasMP3/datos.txt','w')
 		archi.write(listaPreguntas[cont])
 		archi.close()
-		os.system('espeak -v es -s 150 -f /home/pi/Desktop/PreguntasMP3/datos.txt -w /home/pi/Desktop/PreguntasMP3/'+str(cont)+'.mp3')
+                CONV.convertir(fichero="/home/pi/Desktop/PreguntasMP3/datos.txt", ruta="/home/pi/Desktop/PreguntasMP3/",nombre=str(cont),grabar=True)
 		cont=cont+1
 
 def mostrarTexto(mensaje):
