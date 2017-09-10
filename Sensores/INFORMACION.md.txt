@@ -1,2 +1,0 @@
-Sensor: Programaciond de tres sensores de manera secuencial se raliza la medida derecha izquierda centro y se repite
-Sencor1: Programacion con hilos realiza la creacion y lanzado de 3 hilos los cuales realizan las mediciones de manera independiente (posibles interferencias por rebote señal)
